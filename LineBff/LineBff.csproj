@@ -10,12 +10,18 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.7.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.96" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.Azure.Functions.Worker.Extensions.Http" />
-    <None Remove="Presentation\" />
     <None Remove="BusinessLogic\" />
     <None Remove="DataAccess\" />
+    <None Remove="Utils\" />
+    <None Remove="ResponseDTO\" />
+    <None Remove="RequestDTO\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -30,8 +36,10 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Presentation\" />
     <Folder Include="BusinessLogic\" />
     <Folder Include="DataAccess\" />
+    <Folder Include="Utils\" />
+    <Folder Include="ResponseDTO\" />
+    <Folder Include="RequestDTO\" />
   </ItemGroup>
 </Project>
