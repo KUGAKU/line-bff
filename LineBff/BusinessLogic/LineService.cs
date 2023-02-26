@@ -31,7 +31,8 @@ namespace LineBff.BusinessLogic
             var clientId = $"&client_id={EnvVarUtil.GetEnvVarByKeyStr("LINE_CLIENT_ID")}";
             var callbackURL = System.Web.HttpUtility.UrlEncode(EnvVarUtil.GetEnvVarByKeyStr("LINE_CALLBACK_URL"));
             var redirectUri = $"&redirect_uri={callbackURL}";
-            var state = $"&state={SecureRandomGenerator.GenerateRandomString(15)}";
+            var stateValue = SecureRandomGenerator.GenerateRandomString(15);
+            var state = $"&state={stateValue}";
             var scope = "&scope=profile%20openid";
 
             //TODO: リプレイアタック防止の為のnonceを追加する
@@ -41,7 +42,7 @@ namespace LineBff.BusinessLogic
                 AuthURL = uriBuilder.Uri.ToString()
             };
 
-            if (!_lineRepository.AddLineState(state)) {
+            if (!_lineRepository.AddLineState(stateValue)) {
                 throw new SystemException();
             }
             return responseDto;
