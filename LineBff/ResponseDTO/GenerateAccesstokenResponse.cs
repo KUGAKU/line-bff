@@ -1,13 +1,21 @@
-﻿namespace LineBff.ResponseDTO
+﻿using Newtonsoft.Json;
+
+namespace LineBff.ResponseDTO
 {
 	public class GenerateAccesstokenResponse
 	{
-		public string access_token { get; set; }
-		public int expires_in { get; set; }
-		public string id_token { get; set; }
-		public string refresh_token { get; set; }
-		public string scope { get; set; }
-        public string token_type { get; set; }
+		[JsonProperty("access_token")]
+		public string AccessToken { get; set; }
+		[JsonProperty("expires_in")]
+		public int ExpiresIn { get; set; }
+		[JsonProperty("id_token")]
+		public string IdToken { get; set; }
+		[JsonProperty("refresh_token")]
+		public string RefreshToken { get; set; }
+		[JsonProperty("scope")]
+		public string Scope { get; set; }
+		[JsonProperty("token_type")]
+        public string TokenType { get; set; }
     }
 }
 

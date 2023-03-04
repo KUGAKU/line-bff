@@ -3,5 +3,15 @@
   "azureFunctions.projectLanguage": "C#",
   "azureFunctions.projectRuntime": "~4",
   "debug.internalConsoleOptions": "neverOpen",
-  "azureFunctions.preDeployTask": "publish (functions)"
+  "azureFunctions.preDeployTask": "publish (functions)",
+  "cSpell.words": [
+    "accesstoken",
+    "authurl",
+    "IAPI",
+    "Newtonsoft",
+    "PKCE",
+    "Tvtr",
+    "ajOupwzbKsspguG"
+  ],
+  "liveServer.settings.root": "LineBffTest/CoverageReport"
 }

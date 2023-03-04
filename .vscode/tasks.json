@@ -78,40 +78,47 @@
       "problemMatcher": "$func-dotnet-watch"
     },
     {
-        "label": "build",
-        "command": "dotnet",
-        "type": "process",
-        "args": [
-            "build",
-            "${workspaceFolder}/LineBff/LineBff.csproj",
-            "/property:GenerateFullPaths=true",
-            "/consoleloggerparameters:NoSummary"
-        ],
-        "problemMatcher": "$msCompile"
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/LineBff/LineBff.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-        "label": "publish",
-        "command": "dotnet",
-        "type": "process",
-        "args": [
-            "publish",
-            "${workspaceFolder}/LineBff/LineBff.csproj",
-            "/property:GenerateFullPaths=true",
-            "/consoleloggerparameters:NoSummary"
-        ],
-        "problemMatcher": "$msCompile"
+      "label": "publish",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/LineBff/LineBff.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
     },
     {
-        "label": "watch",
-        "command": "dotnet",
-        "type": "process",
-        "args": [
-            "watch",
-            "run",
-            "--project",
-            "${workspaceFolder}/LineBff/LineBff.csproj"
-        ],
-        "problemMatcher": "$msCompile"
+      "label": "watch",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/LineBff/LineBff.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run coverlet collector",
+      "type": "shell",
+      "command": "dotnet test --collect:\"XPlat Code Coverage\"",
+      "problemMatcher": ["$func-dotnet-watch"],
+      "isBackground": true
     }
   ]
 }

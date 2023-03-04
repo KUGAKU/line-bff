@@ -2,6 +2,7 @@
 using LineBff.DataAccess;
 using LineBff.DataAccess.Datasource;
 using LineBff.Utils;
+using LineBff.Wrappers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
@@ -17,7 +18,7 @@ namespace LineBff
                 .ConfigureServices(s =>
                 {
                     var redis = ConnectionMultiplexer.Connect(EnvVarUtil.GetEnvVarByKeyStr("REDIS_CONNECTION_STRING")); //TODO: この書き方じゃなくてもかけるから直す
-                    s.AddHttpClient();
+                    s.AddSingleton<IHttpClientWrapper>(new HttpClientWrapper(new HttpClient()));
                     s.AddSingleton(redis.GetDatabase());
                     s.AddSingleton<ICacheDataSource, CacheDataSource>();
                     s.AddSingleton<ILineRepository, LineRepository>();

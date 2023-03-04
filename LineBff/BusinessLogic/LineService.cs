@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using LineBff.DataAccess;
+﻿using LineBff.DataAccess;
 using LineBff.RequestDTO;
 using LineBff.ResponseDTO;
 using LineBff.Utils;
@@ -15,13 +14,10 @@ namespace LineBff.BusinessLogic
 
 	public class LineService: ILineService
     {
-
-        private readonly HttpClient _httpClient;
         private readonly ILineRepository _lineRepository;
 
-        public LineService(IHttpClientFactory httpClientFactory, ILineRepository lineRepository)
+        public LineService(ILineRepository lineRepository)
         {
-            _httpClient = httpClientFactory.CreateClient();
             _lineRepository = lineRepository;
         }
 
@@ -54,29 +50,9 @@ namespace LineBff.BusinessLogic
             if (state != generateAccesstokenRequest.State) {
                 throw new SystemException();
             }
-
-            var parameters = new Dictionary<string, string>
-            {
-                { "grant_type", "authorization_code" },
-                { "code", generateAccesstokenRequest.AuthorizationCode },
-                { "redirect_uri", EnvVarUtil.GetEnvVarByKeyStr("LINE_CALLBACK_URL")},
-                { "client_id", EnvVarUtil.GetEnvVarByKeyStr("LINE_CLIENT_ID")},
-                { "client_secret", EnvVarUtil.GetEnvVarByKeyStr("LINE_CLIENT_SECRET")},
-                //{ "code_verifier", "" } //TODO: PKCE対応する 
-            };
-
-            var content = new FormUrlEncodedContent(parameters);
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.line.me/oauth2/v2.1/token")
-            {
-                Content = content
-            };
-
-            var response = await _httpClient.SendAsync(request) ?? throw new ArgumentNullException();
-            var data = await response.Content.ReadAsByteArrayAsync();
-            var body =  JsonSerializer.Deserialize<GenerateAccesstokenResponse>(data) ?? throw new ArgumentNullException();
-
-            _lineRepository.AddLineAccessToken(body);
-            return body;
+            var response = await _lineRepository.GenerateAccesstoken(generateAccesstokenRequest);
+            _lineRepository.AddLineAccessToken(response);
+            return response;
         }
     }
 }
