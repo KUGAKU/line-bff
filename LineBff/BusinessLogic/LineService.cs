@@ -9,10 +9,9 @@ namespace LineBff.BusinessLogic
     {
         GenerateAuthURLResponse GenerateAuthURL();
         Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
-
     }
 
-	public class LineService: ILineService
+    public class LineService : ILineService
     {
         private readonly ILineRepository _lineRepository;
 
@@ -22,7 +21,7 @@ namespace LineBff.BusinessLogic
         }
 
         public GenerateAuthURLResponse GenerateAuthURL()
-		{
+        {
             var responseType = "?response_type=code";
             var clientId = $"&client_id={EnvVarUtil.GetEnvVarByKeyStr("LINE_CLIENT_ID")}";
             var callbackURL = System.Web.HttpUtility.UrlEncode(EnvVarUtil.GetEnvVarByKeyStr("LINE_CALLBACK_URL"));
@@ -38,7 +37,8 @@ namespace LineBff.BusinessLogic
                 AuthURL = uriBuilder.Uri.ToString()
             };
 
-            if (!_lineRepository.AddLineState(stateValue)) {
+            if (!_lineRepository.AddLineState(stateValue))
+            {
                 throw new SystemException();
             }
             return responseDto;
@@ -47,7 +47,8 @@ namespace LineBff.BusinessLogic
         public async Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest)
         {
             var state = _lineRepository.GetLineState();
-            if (state != generateAccesstokenRequest.State) {
+            if (state != generateAccesstokenRequest.State)
+            {
                 throw new SystemException();
             }
             var response = await _lineRepository.GenerateAccesstoken(generateAccesstokenRequest);

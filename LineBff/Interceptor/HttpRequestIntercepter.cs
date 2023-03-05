@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.Json;
-using Microsoft.Azure.Functions.Worker.Http;
+﻿using Microsoft.Azure.Functions.Worker.Http;
 
 namespace LineBff.Interceptor
 {

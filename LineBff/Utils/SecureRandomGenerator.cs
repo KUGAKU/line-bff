@@ -2,8 +2,8 @@
 
 namespace LineBff.Utils
 {
-	public class SecureRandomGenerator
-	{
+    public class SecureRandomGenerator
+    {
         public static string GenerateRandomString(int length)
         {
             const string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

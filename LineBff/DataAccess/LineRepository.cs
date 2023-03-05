@@ -1,61 +1,61 @@
 ﻿using LineBff.DataAccess.Datasource;
 using LineBff.ResponseDTO;
 using LineBff.RequestDTO;
-using LineBff.Wrappers;
 using LineBff.Utils;
 using Newtonsoft.Json;
+using Flurl.Http;
 
 namespace LineBff.DataAccess
 {
-	public interface ILineRepository
-	{
-		bool AddLineState(string state);
-		bool AddLineAccessToken(GenerateAccesstokenResponse dto);
-		string GetLineState();
-		GenerateAccesstokenResponse GetLineAccessToken();
-		Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
+    public interface ILineRepository
+    {
+        bool AddLineState(string state);
+        bool AddLineAccessToken(GenerateAccesstokenResponse dto);
+        string GetLineState();
+        GenerateAccesstokenResponse GetLineAccessToken();
+        Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
     }
 
-	public class LineRepository: ILineRepository
-	{
-		private readonly ICacheDataSource _cacheDataSource;
-		private readonly IHttpClientWrapper _apiDataSource;
-		private readonly string _lineStateKey = "line_state";
-		private readonly string _lineAccessTokenKey = "line_access_token";
+    public class LineRepository : ILineRepository
+    {
+        private readonly ICacheDataSource _cacheDataSource;
+        private readonly string _lineStateKey = "line_state";
+        private readonly string _lineAccessTokenKey = "line_access_token";
 
-        public LineRepository(ICacheDataSource cacheDataSource, IHttpClientWrapper apiDataSource)
-		{
-			_cacheDataSource = cacheDataSource;
-			_apiDataSource = apiDataSource;
-		}
+        private readonly string _lineTokenApiEndpoint = "https://api.line.me/oauth2/v2.1/token";
+
+        public LineRepository(ICacheDataSource cacheDataSource)
+        {
+            _cacheDataSource = cacheDataSource;
+        }
 
         public bool AddLineState(string state)
         {
-			return _cacheDataSource.SetStringValue(_lineStateKey, state, 30); //30分でstateの検証はできなくなる
+            return _cacheDataSource.SetStringValue(_lineStateKey, state, 30); //30分でstateの検証はできなくなる
         }
 
         public bool AddLineAccessToken(GenerateAccesstokenResponse dto)
         {
-			var json = JsonConvert.SerializeObject(dto);
+            var json = JsonConvert.SerializeObject(dto);
             return _cacheDataSource.SetStringValue(_lineAccessTokenKey, json, 10080); //1週間でアクセストークンがなくなる
         }
 
         public string GetLineState()
         {
-			var value = _cacheDataSource.GetValue(_lineStateKey);
-			return value.ToString();
+            var value = _cacheDataSource.GetValue(_lineStateKey);
+            return value;
         }
 
         public GenerateAccesstokenResponse GetLineAccessToken()
         {
-			var value = _cacheDataSource.GetValue(_lineAccessTokenKey);
-			var response = JsonConvert.DeserializeObject<GenerateAccesstokenResponse>(value.ToString()) ?? throw new SystemException();
+            var value = _cacheDataSource.GetValue(_lineAccessTokenKey);
+            var response = JsonConvert.DeserializeObject<GenerateAccesstokenResponse>(value.ToString()) ?? throw new SystemException();
             return response;
         }
 
         public async Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest)
         {
-			var parameters = new Dictionary<string, string>
+            var parameters = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "code", generateAccesstokenRequest.AuthorizationCode },
@@ -65,21 +65,18 @@ namespace LineBff.DataAccess
                 //{ "code_verifier", "" } //TODO: PKCE対応する 
             };
 
-            var content = new FormUrlEncodedContent(parameters);
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.line.me/oauth2/v2.1/token")
+            var response = await _lineTokenApiEndpoint
+                .WithHeaders(new { Accept = "application/json" })
+                .PostUrlEncodedAsync(parameters) ?? throw new ArgumentNullException();
+
+            if (response.StatusCode != 200)
             {
-                Content = content
-            };
-
-            var response = await _apiDataSource.SendAsync(request) ?? throw new ArgumentNullException();
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK) {
                 throw new SystemException();
             }
 
-			var data = await response.Content.ReadAsStringAsync();
+            var data = await response.GetStringAsync();
             var body = JsonConvert.DeserializeObject<GenerateAccesstokenResponse>(data) ?? throw new ArgumentNullException();
-			return body;
+            return body;
         }
     }
 }

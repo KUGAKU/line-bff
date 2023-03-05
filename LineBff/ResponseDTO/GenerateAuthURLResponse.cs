@@ -2,8 +2,8 @@
 
 namespace LineBff.ResponseDTO
 {
-	public class GenerateAuthURLResponse
-	{
+    public class GenerateAuthURLResponse
+    {
         [JsonProperty("auth_url")]
         public string AuthURL { get; set; }
     }

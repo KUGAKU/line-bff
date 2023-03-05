@@ -14,9 +14,9 @@ public class LineControllerTest
 {
 
     [TestMethod]
-    public void RunGenerateAuthURLTest()
+    public void PositiveRunGenerateAuthURLTest()
     {
-        //given
+        //Arrange:
         var requestMock = new MockHttpRequestData("");
 
         requestMock.CreateResponse(HttpStatusCode.OK);
@@ -28,20 +28,20 @@ public class LineControllerTest
         var controller = new LineController(serviceMock.Object);
         var expected = HttpStatusCode.OK;
 
-        //when
+        // Act:
         var responseData = controller.RunGenerateAuthURL(requestMock);
         var actual = responseData.StatusCode;
 
-        //then
+        // Assert:
         Assert.AreEqual(expected, actual);
 
     }
 
     [TestMethod]
-    public async Task RunGenerateAccesstokenTest()
+    public async Task PositiveRunGenerateAccesstokenTest()
     {
 
-        //given
+        //Arrange:
         var requestMock = new MockHttpRequestData("{\"AuthorizationCode\":\"pqYNb7TvtrPKq7B1N9Ax\",\"State\": \"ajOupwzbKsspguG\"}");
         requestMock.CreateResponse(HttpStatusCode.OK);
 
@@ -61,11 +61,11 @@ public class LineControllerTest
         var controller = new LineController(serviceMock.Object);
         var expected = HttpStatusCode.OK;
 
-        //when
+        // Act:
         var responseData = await controller.RunGenerateAccesstoken(requestMock);
         var actual = responseData.StatusCode;
 
-        //then
+        // Assert:
         Assert.AreEqual(expected, actual);
     }
 }

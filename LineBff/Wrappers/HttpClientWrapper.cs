@@ -1,5 +1,4 @@
-﻿using System;
-namespace LineBff.Wrappers
+﻿namespace LineBff.Wrappers
 {
     public interface IHttpClientWrapper
     {

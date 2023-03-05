@@ -1,12 +1,13 @@
 ﻿namespace LineBff.Utils
 {
-	public static class EnvVarUtil
-	{
+    public static class EnvVarUtil
+    {
         public static string GetEnvVarByKeyStr(string keyStr)
         {
             try
             {
-                if (Environment.GetEnvironmentVariable(keyStr, EnvironmentVariableTarget.Process) == null) {
+                if (Environment.GetEnvironmentVariable(keyStr, EnvironmentVariableTarget.Process) == null)
+                {
                     throw new NullEnvironmentVariableException(keyStr);
                 }
                 return Environment.GetEnvironmentVariable(keyStr, EnvironmentVariableTarget.Process)!;

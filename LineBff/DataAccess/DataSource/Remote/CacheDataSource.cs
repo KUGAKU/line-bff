@@ -2,11 +2,11 @@
 
 namespace LineBff.DataAccess.Datasource
 {
-	public interface ICacheDataSource
-	{
+    public interface ICacheDataSource
+    {
         bool SetStringValue(string key, string value, int minutes);
-        RedisValue GetValue(string key);
-	}
+        string GetValue(string key);
+    }
 
 
     public class CacheDataSource : ICacheDataSource
@@ -19,9 +19,9 @@ namespace LineBff.DataAccess.Datasource
             _database = database;
         }
 
-        public RedisValue GetValue(string key)
+        public string GetValue(string key)
         {
-            return _database.StringGet(key);
+            return _database.StringGet(key).ToString();
         }
 
         public bool SetStringValue(string key, string value, int minutes)
