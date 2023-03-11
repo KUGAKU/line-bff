@@ -2,7 +2,7 @@
 
 namespace LineBff.Utils
 {
-    public class SecureRandomGenerator
+    public static class SecureRandomGenerator
     {
         public static string GenerateRandomString(int length)
         {

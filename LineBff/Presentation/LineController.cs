@@ -2,6 +2,7 @@
 using System.Text;
 using LineBff.BusinessLogic;
 using LineBff.RequestDTO;
+using LineBff.Utils;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Newtonsoft.Json;
@@ -11,10 +12,12 @@ namespace LineBff
     public class LineController
     {
         private readonly ILineService _service;
+        private readonly ISessionService _sessionService;
 
-        public LineController(ILineService service)
+        public LineController(ILineService service, ISessionService sessionService)
         {
             _service = service;
+            _sessionService = sessionService;
         }
 
         [Function("generate-authurl")]
@@ -24,7 +27,12 @@ namespace LineBff
             {
                 var dto = _service.GenerateAuthURL();
                 var json = JsonConvert.SerializeObject(dto);
+
+                var sessionId = SecureRandomGenerator.GenerateRandomString(16);
+                if (!_sessionService.SaveSessionId(sessionId)) throw new SystemException();
+
                 var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Cookies.Append("session", sessionId);
                 response.Headers.Add("Content-Type", "application/json");
                 response.Body = new MemoryStream(Encoding.UTF8.GetBytes(json));
                 return response;
@@ -40,6 +48,8 @@ namespace LineBff
         {
             try
             {
+                var cookies = req.Cookies.ToDictionary(cookie => cookie.Name, cookie => cookie.Value);
+                var cookie = cookies.ContainsKey("session") ? cookies["session"] : throw new InvalidOperationException();
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 //TODO: バリデーション
                 var request = JsonConvert.DeserializeObject<GenerateAccesstokenRequest>(requestBody) ?? throw new ArgumentNullException();
@@ -47,7 +57,6 @@ namespace LineBff
                 var json = JsonConvert.SerializeObject(dto);
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Content-Type", "application/json");
-                response.Body = new MemoryStream(Encoding.UTF8.GetBytes(json));
                 return response;
             }
             catch (Exception)

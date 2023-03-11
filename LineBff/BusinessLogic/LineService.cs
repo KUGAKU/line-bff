@@ -2,6 +2,7 @@
 using LineBff.RequestDTO;
 using LineBff.ResponseDTO;
 using LineBff.Utils;
+using Newtonsoft.Json;
 
 namespace LineBff.BusinessLogic
 {
@@ -9,15 +10,18 @@ namespace LineBff.BusinessLogic
     {
         GenerateAuthURLResponse GenerateAuthURL();
         Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
+        
     }
 
     public class LineService : ILineService
     {
         private readonly ILineRepository _lineRepository;
+        private readonly ISessionRepository _sessionRepository;
 
-        public LineService(ILineRepository lineRepository)
+        public LineService(ILineRepository lineRepository, ISessionRepository sessionRepository)
         {
             _lineRepository = lineRepository;
+            _sessionRepository = sessionRepository;
         }
 
         public GenerateAuthURLResponse GenerateAuthURL()
@@ -52,6 +56,11 @@ namespace LineBff.BusinessLogic
                 throw new SystemException();
             }
             var response = await _lineRepository.GenerateAccesstoken(generateAccesstokenRequest);
+            var json = JsonConvert.SerializeObject(response);
+            if (!_sessionRepository.AddStringValueWithSessionId(json))
+            {
+                throw new SystemException();
+            }
             _lineRepository.AddLineAccessToken(response);
             return response;
         }

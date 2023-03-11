@@ -42,8 +42,7 @@ namespace LineBff.DataAccess
 
         public string GetLineState()
         {
-            var value = _cacheDataSource.GetValue(_lineStateKey);
-            return value;
+            return _cacheDataSource.GetValue(_lineStateKey);
         }
 
         public GenerateAccesstokenResponse GetLineAccessToken()
