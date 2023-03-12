@@ -8,7 +8,8 @@ namespace LineBff.Middleware
         private readonly string[] allowedPublicAbsolutePaths = new string[]
         {
             "/api/generate-authurl",
-            "/api/generate-accesstoken"
+            "/api/generate-accesstoken",
+            "/api/get-user-profile"
         };
 
         private readonly string[] allowedPrivateAbsolutePaths = new string[]

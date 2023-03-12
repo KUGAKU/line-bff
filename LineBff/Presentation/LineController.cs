@@ -11,12 +11,12 @@ namespace LineBff
 {
     public class LineController
     {
-        private readonly ILineService _service;
+        private readonly ILineService _lineService;
         private readonly ISessionService _sessionService;
 
-        public LineController(ILineService service, ISessionService sessionService)
+        public LineController(ILineService lineService, ISessionService sessionService)
         {
-            _service = service;
+            _lineService = lineService;
             _sessionService = sessionService;
         }
 
@@ -25,7 +25,7 @@ namespace LineBff
         {
             try
             {
-                var dto = _service.GenerateAuthURL();
+                var dto = _lineService.GenerateAuthURL();
                 var json = JsonConvert.SerializeObject(dto);
 
                 var sessionId = SecureRandomGenerator.GenerateRandomString(16);
@@ -53,10 +53,30 @@ namespace LineBff
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 //TODO: バリデーション
                 var request = JsonConvert.DeserializeObject<GenerateAccesstokenRequest>(requestBody) ?? throw new ArgumentNullException();
-                var dto = await _service.GenerateAccesstoken(request);
+                var dto = await _lineService.GenerateAccesstoken(request);
                 var json = JsonConvert.SerializeObject(dto);
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Content-Type", "application/json");
+                return response;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [Function("get-user-profile")]
+        public async Task<HttpResponseData> RunGetUserProfile([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        {
+            try
+            {
+                var cookies = req.Cookies.ToDictionary(cookie => cookie.Name, cookie => cookie.Value);
+                var cookie = cookies.ContainsKey("session") ? cookies["session"] : throw new InvalidOperationException();
+                var dto = await _lineService.GetUserProfile();
+                var json = JsonConvert.SerializeObject(dto);
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "application/json");
+                response.Body = new MemoryStream(Encoding.UTF8.GetBytes(json));
                 return response;
             }
             catch (Exception)

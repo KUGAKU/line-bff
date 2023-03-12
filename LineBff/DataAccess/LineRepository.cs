@@ -14,6 +14,8 @@ namespace LineBff.DataAccess
         string GetLineState();
         GenerateAccesstokenResponse GetLineAccessToken();
         Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
+
+        Task<UserProfileResponse> GetUserProfile(string accessToken);
     }
 
     public class LineRepository : ILineRepository
@@ -21,8 +23,8 @@ namespace LineBff.DataAccess
         private readonly ICacheDataSource _cacheDataSource;
         private readonly string _lineStateKey = "line_state";
         private readonly string _lineAccessTokenKey = "line_access_token";
-
         private readonly string _lineTokenApiEndpoint = "https://api.line.me/oauth2/v2.1/token";
+        private readonly string _lineApiEndpoint = "https://api.line.me/v2";
 
         public LineRepository(ICacheDataSource cacheDataSource)
         {
@@ -75,6 +77,23 @@ namespace LineBff.DataAccess
 
             var data = await response.GetStringAsync();
             var body = JsonConvert.DeserializeObject<GenerateAccesstokenResponse>(data) ?? throw new ArgumentNullException();
+            return body;
+        }
+
+        public async Task<UserProfileResponse> GetUserProfile(string accessToken)
+        {
+
+            var response = await (_lineApiEndpoint + "/profile")
+                .WithHeader("Authorization", $"Bearer {accessToken}")
+                .GetAsync();
+
+            if (response.StatusCode != 200)
+            {
+                throw new SystemException();
+            }
+
+            var data = await response.GetStringAsync();
+            var body = JsonConvert.DeserializeObject<UserProfileResponse>(data) ?? throw new ArgumentNullException();
             return body;
         }
     }

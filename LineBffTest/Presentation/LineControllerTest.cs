@@ -22,10 +22,11 @@ public class LineControllerTest
         requestMock.CreateResponse(HttpStatusCode.OK);
 
         var serviceMock = new Mock<ILineService>();
+        var sessionMock = new Mock<ISessionService>();
         serviceMock.Setup(x => x.GenerateAuthURL()).Returns(new GenerateAuthURLResponse() { AuthURL = "https://access.line.me/oauth2/v2.1/authorize/xxxx" });
 
         //and
-        var controller = new LineController(serviceMock.Object);
+        var controller = new LineController(serviceMock.Object, sessionMock.Object);
         var expected = HttpStatusCode.OK;
 
         // Act:
@@ -46,6 +47,7 @@ public class LineControllerTest
         requestMock.CreateResponse(HttpStatusCode.OK);
 
         var serviceMock = new Mock<ILineService>();
+        var sessionMock = new Mock<ISessionService>();
         serviceMock.Setup(x => x.GenerateAccesstoken(It.IsAny<GenerateAccesstokenRequest>()))
             .Returns(Task.FromResult(new GenerateAccesstokenResponse()
             {
@@ -58,7 +60,7 @@ public class LineControllerTest
             }));
 
         //and
-        var controller = new LineController(serviceMock.Object);
+        var controller = new LineController(serviceMock.Object, sessionMock.Object);
         var expected = HttpStatusCode.OK;
 
         // Act:

@@ -7,6 +7,7 @@ namespace LineBff.DataAccess
         bool AddSessionId(string sessionId);
         bool AddStringValueWithSessionId(string stringValue);
         string GetSessionId();
+        string GetStringValueBySessionId(string sessionId);
     }
 
     public class SessionRepository : ISessionRepository
@@ -33,6 +34,11 @@ namespace LineBff.DataAccess
         public string GetSessionId()
         {
             return _cacheDataSource.GetValue(_sessionIdKey);
+        }
+
+        public string GetStringValueBySessionId(string sessionId)
+        {
+            return _cacheDataSource.GetValue(sessionId);
         }
     }
 }

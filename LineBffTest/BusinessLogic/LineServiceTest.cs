@@ -18,9 +18,10 @@ namespace LineBffTest.BusinessLogic
 
             var lineRepositoryMock = new Mock<ILineRepository>();
             lineRepositoryMock.Setup(x => x.AddLineState(It.IsAny<string>())).Returns(true);
+            var sessionRepositoryMock = new Mock<ISessionRepository>();
 
             //and
-            var service = new LineService(lineRepositoryMock.Object);
+            var service = new LineService(lineRepositoryMock.Object, sessionRepositoryMock.Object);
 
             // Act:
             var actual = service.GenerateAuthURL();
@@ -42,9 +43,10 @@ namespace LineBffTest.BusinessLogic
 
             var lineRepositoryMock = new Mock<ILineRepository>();
             lineRepositoryMock.Setup(x => x.AddLineState(It.IsAny<string>())).Returns(false);
+            var sessionRepositoryMock = new Mock<ISessionRepository>();
 
             //and
-            var service = new LineService(lineRepositoryMock.Object);
+            var service = new LineService(lineRepositoryMock.Object, sessionRepositoryMock.Object);
 
             // Act:
             var exception = Assert.ThrowsException<SystemException>(() => service.GenerateAuthURL());
@@ -59,10 +61,11 @@ namespace LineBffTest.BusinessLogic
             //Arrange:
             var lineRepositoryMock = new Mock<ILineRepository>();
             lineRepositoryMock.Setup(x => x.GetLineState()).Returns("test_valid_line_state");
+            var sessionRepositoryMock = new Mock<ISessionRepository>();
 
             //and
             var generateAccesstokenRequest = new GenerateAccesstokenRequest() { AuthorizationCode = "test_authorization_code", State = "test_invalid_line_state" };
-            var service = new LineService(lineRepositoryMock.Object);
+            var service = new LineService(lineRepositoryMock.Object, sessionRepositoryMock.Object);
 
             // Act:
             var exception = await Assert.ThrowsExceptionAsync<SystemException>(async () =>
@@ -89,6 +92,7 @@ namespace LineBffTest.BusinessLogic
                 Scope = "test_scope",
                 TokenType = "test_token_type"
             }));
+            var sessionRepositoryMock = new Mock<ISessionRepository>();
 
             //and
             var expected = new GenerateAccesstokenResponse()
@@ -101,7 +105,7 @@ namespace LineBffTest.BusinessLogic
                 TokenType = "test_token_type"
             };
             var generateAccesstokenRequest = new GenerateAccesstokenRequest() { AuthorizationCode = "test_authorization_code", State = "test_valid_line_state" };
-            var service = new LineService(lineRepositoryMock.Object);
+            var service = new LineService(lineRepositoryMock.Object, sessionRepositoryMock.Object);
 
             // Act:
             var actual = await service.GenerateAccesstoken(generateAccesstokenRequest);
