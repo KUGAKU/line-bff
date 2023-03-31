@@ -48,8 +48,6 @@ namespace LineBff
         {
             try
             {
-                var cookies = req.Cookies.ToDictionary(cookie => cookie.Name, cookie => cookie.Value);
-                var cookie = cookies.ContainsKey("session") ? cookies["session"] : throw new InvalidOperationException();
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 //TODO: バリデーション
                 var request = JsonConvert.DeserializeObject<GenerateAccesstokenRequest>(requestBody) ?? throw new ArgumentNullException();

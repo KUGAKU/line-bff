@@ -1,40 +1,88 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using System.Net;
+using LineBff.DataAccess;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 
 namespace LineBff.Middleware
 {
     public class AuthenticationMiddleware : IFunctionsWorkerMiddleware
     {
-        private readonly string[] allowedPublicAbsolutePaths = new string[]
+
+        private readonly ISessionRepository _sessionRepository;
+
+        public AuthenticationMiddleware(ISessionRepository sessionRepository)
+        {
+            _sessionRepository = sessionRepository;
+        }
+
+        public readonly string[] allowedPublicAbsolutePaths = new string[]
         {
             "/api/generate-authurl",
+        };
+
+        public readonly string[] allowedPrivateAbsolutePaths = new string[]
+        {
             "/api/generate-accesstoken",
             "/api/get-user-profile"
         };
-
-        private readonly string[] allowedPrivateAbsolutePaths = new string[]
-        {
-            "/api/generate-accesstoken"
-        };
-
 
 
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
             var requestData = await context.GetHttpRequestDataAsync();
-            if (requestData == null) return;
-            if (!IsAllowedPublicAbsolutePaths(requestData.Url)) return;
+            if (requestData == null) {
+                return;
+            }
+
+            if (IsAllowedPublicAbsolutePaths(requestData.Url))
+            {
+                await next(context);
+                return;
+            }
+
+            var cookies = requestData!.Cookies;
+            var session = cookies.FirstOrDefault(cookie => cookie.Name == "session");
+
+            if (session == null) { //Cookie not sent from the browser.
+                var response = requestData.CreateResponse();
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return;
+            }
+
+            var sessionId = _sessionRepository.GetSessionId();
+            if (!IsValidSession(session.Value, sessionId)) //Session ID mismatch, indicating an invalid or tampered session ID.
+            {
+                var response = requestData.CreateResponse();
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return;
+            }
+
+            if (!IsAllowedPrivateAbsolutePaths(requestData.Url)) 
+            {
+                var response = requestData.CreateResponse();
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return;
+            }
 
             await next(context);
         }
 
-        private bool IsAllowedPublicAbsolutePaths(Uri uri)
+        public bool IsValidSession(string sessionValue, string sessionId)
+        {
+            if (sessionValue == sessionId)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsAllowedPublicAbsolutePaths(Uri uri)
         {
             if (allowedPublicAbsolutePaths.Contains(uri.AbsolutePath)) return true;
             return false;
         }
 
-        private bool IsAllowedPrivateAbsolutePaths(Uri uri)
+        public bool IsAllowedPrivateAbsolutePaths(Uri uri)
         {
             if (allowedPrivateAbsolutePaths.Contains(uri.AbsolutePath)) return true;
             return false;
