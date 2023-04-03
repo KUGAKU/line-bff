@@ -25,6 +25,7 @@
     <None Remove="Interceptor\" />
     <None Remove="Wrappers\" />
     <None Remove="Middleware\" />
+    <None Remove="Entity\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />
@@ -50,5 +51,6 @@
     <Folder Include="Interceptor\" />
     <Folder Include="Wrappers\" />
     <Folder Include="Middleware\" />
+    <Folder Include="Entity\" />
   </ItemGroup>
 </Project>

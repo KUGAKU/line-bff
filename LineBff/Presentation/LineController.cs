@@ -68,9 +68,25 @@ namespace LineBff
         {
             try
             {
-                var cookies = req.Cookies.ToDictionary(cookie => cookie.Name, cookie => cookie.Value);
-                var cookie = cookies.ContainsKey("session") ? cookies["session"] : throw new InvalidOperationException();
                 var dto = await _lineService.GetUserProfile();
+                var json = JsonConvert.SerializeObject(dto);
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "application/json");
+                response.Body = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                return response;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [Function("introspect-accesstoken")]
+        public async Task<HttpResponseData> RunIntrospectAccessToken([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        {
+            try
+            {
+                var dto = await _lineService.IntrospectAccessToken();
                 var json = JsonConvert.SerializeObject(dto);
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Content-Type", "application/json");

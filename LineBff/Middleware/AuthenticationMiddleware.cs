@@ -22,6 +22,7 @@ namespace LineBff.Middleware
 
         public readonly string[] allowedPrivateAbsolutePaths = new string[]
         {
+            "/api/introspect-accesstoken",
             "/api/generate-accesstoken",
             "/api/get-user-profile"
         };
@@ -46,6 +47,7 @@ namespace LineBff.Middleware
             if (session == null) { //Cookie not sent from the browser.
                 var response = requestData.CreateResponse();
                 response.StatusCode = HttpStatusCode.Unauthorized;
+                context.GetInvocationResult().Value = response;
                 return;
             }
 
@@ -54,6 +56,7 @@ namespace LineBff.Middleware
             {
                 var response = requestData.CreateResponse();
                 response.StatusCode = HttpStatusCode.Unauthorized;
+                context.GetInvocationResult().Value = response;
                 return;
             }
 
@@ -61,6 +64,7 @@ namespace LineBff.Middleware
             {
                 var response = requestData.CreateResponse();
                 response.StatusCode = HttpStatusCode.Forbidden;
+                context.GetInvocationResult().Value = response;
                 return;
             }
 

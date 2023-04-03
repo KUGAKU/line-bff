@@ -12,6 +12,7 @@ namespace LineBff.BusinessLogic
         Task<GenerateAccesstokenResponse> GenerateAccesstoken(GenerateAccesstokenRequest generateAccesstokenRequest);
 
         Task<UserProfileResponse> GetUserProfile();
+        Task<IntrospectAccessTokenResponse> IntrospectAccessToken();
     }
 
     public class LineService : ILineService
@@ -80,6 +81,25 @@ namespace LineBff.BusinessLogic
                 throw new ArgumentNullException();
             }
             return _lineRepository.GetUserProfile(accessToken.AccessToken);
+        }
+
+        public async Task<IntrospectAccessTokenResponse> IntrospectAccessToken()
+        {
+            var sessionId = _sessionRepository.GetSessionId();
+            var value = _sessionRepository.GetStringValueBySessionId(sessionId);
+            if (value == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var accessToken = JsonConvert.DeserializeObject<GenerateAccesstokenResponse>(value);
+            if (accessToken == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var response = new IntrospectAccessTokenResponse();
+            var entity = await _lineRepository.IntrospectAccessToken(accessToken.AccessToken);
+            response.IsValid = entity != null ? true : false;
+            return response;
         }
     }
 }
