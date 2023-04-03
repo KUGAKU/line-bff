@@ -1,7 +1,10 @@
 ﻿using System.Net;
+using System.Text;
 using LineBff.DataAccess;
+using LineBff.ResponseDTO;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
+using Newtonsoft.Json;
 
 namespace LineBff.Middleware
 {
@@ -31,7 +34,8 @@ namespace LineBff.Middleware
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
             var requestData = await context.GetHttpRequestDataAsync();
-            if (requestData == null) {
+            if (requestData == null)
+            {
                 return;
             }
 
@@ -44,9 +48,14 @@ namespace LineBff.Middleware
             var cookies = requestData!.Cookies;
             var session = cookies.FirstOrDefault(cookie => cookie.Name == "session");
 
-            if (session == null) { //Cookie not sent from the browser.
+            if (session == null)
+            { //Cookie not sent from the browser.
                 var response = requestData.CreateResponse();
                 response.StatusCode = HttpStatusCode.Unauthorized;
+                var body = new IntrospectAccessTokenResponse();
+                body.IsValid = false;
+                var json = JsonConvert.SerializeObject(body);
+                response.Body = new MemoryStream(Encoding.UTF8.GetBytes(json));
                 context.GetInvocationResult().Value = response;
                 return;
             }
@@ -60,7 +69,7 @@ namespace LineBff.Middleware
                 return;
             }
 
-            if (!IsAllowedPrivateAbsolutePaths(requestData.Url)) 
+            if (!IsAllowedPrivateAbsolutePaths(requestData.Url))
             {
                 var response = requestData.CreateResponse();
                 response.StatusCode = HttpStatusCode.Forbidden;
